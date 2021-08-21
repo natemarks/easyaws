@@ -1,0 +1,1 @@
+This project is mostly about AWS integrations. The scripts are used to run tests that require setup teardown
