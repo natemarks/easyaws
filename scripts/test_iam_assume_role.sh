@@ -8,7 +8,7 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
 usage() {
   cat <<EOF
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-f] -p param_value arg1 [arg2...]
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v]
 
 Script description here.
 
@@ -16,8 +16,6 @@ Available options:
 
 -h, --help      Print this help and exit
 -v, --verbose   Print script debug info
--f, --flag      Some flag description
--p, --param     Some param description
 EOF
   exit
 }
@@ -49,20 +47,13 @@ die() {
 }
 
 parse_params() {
-  # default values of variables set from params
-  flag=0
-  param=''
+
 
   while :; do
     case "${1-}" in
     -h | --help) usage ;;
     -v | --verbose) set -xv ;;
     --no-color) NO_COLOR=1 ;;
-    -f | --flag) flag=1 ;; # example flag
-    -p | --param) # example named parameter
-      param="${2-}"
-      shift
-      ;;
     -?*) die "Unknown option: $1" ;;
     *) break ;;
     esac
@@ -71,19 +62,13 @@ parse_params() {
 
   args=("$@")
 
-  # check required params and arguments
-  [[ -z "${param-}" ]] && die "Missing required parameter: param"
-  [[ ${#args[@]} -eq 0 ]] && die "Missing script arguments"
-
   return 0
 }
 
 parse_params "$@"
 setup_colors
-
-# script logic here
-
-msg "${RED}Read parameters:${NOFORMAT}"
-msg "- flag: ${flag}"
-msg "- param: ${param}"
-msg "- arguments: ${args[*]-}"
+# source import utility functions
+. scripts/utility.sh
+setup_terraform
+which terraform
+declare -r tf_module="deployments/$(get_test_name "$(basename ${BASH_SOURCE[0]})")"
