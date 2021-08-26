@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 # Version of pipeline scripts to use
 # https://github.com/natemarks/pipeline-scripts
-declare -r PS_VER=v0.0.3
+declare -r PS_VER=v0.0.11
 
 #######################################
 # Invoke the terraform install script from the github pipeline-scripts project
@@ -23,4 +23,21 @@ function get_test_name() {
     local script_name="${1}"
     local no_suffix="${script_name%.sh}"
     echo "${no_suffix#test_}"
+}
+
+
+#######################################
+# Change direc
+# name.  This is required to invoke terraform against the module based on the test name.
+# Example, the script test_iam_assume_role.sh should return gthe test name 'iam_assume_role', which allows the script
+# to invoke terraform in deployments/iam_assume_role
+#######################################
+function run_tf_module() {
+  local module_dir="${1}"
+  local initial_dir="$(pwd)"
+  cd "${module_dir}"
+  terraform init && terraform plan
+  terraform apply -auto-approve
+
+
 }

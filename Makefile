@@ -67,10 +67,18 @@ shellcheck: ## Run static code checks
 clean:
 	-@rm ${OUT} ${OUT}-v*
 
-create_test_iam_user:
+setup_project_fixtures:
+	bash scripts/setup_project_fixtures.sh
 
-i_test: create_test_iam_user ## run all of the integration tests
-	bash $(INTEGRATION_SCRIPTS)
+#$(INTEGRATION_SCRIPTS):
+#	@bash $@
+
+run_tests:
+	for file in $(INTEGRATION_SCRIPTS); do \
+			bash $${file} ; \
+	done
+
+i_test: setup_project_fixtures run_tests ## run all of the integration tests
 
 bump: clean-venv  ## bump version in main branch
 ifeq ($(CURRENT_BRANCH), $(MAIN_BRANCH))
