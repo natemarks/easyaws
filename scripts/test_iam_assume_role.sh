@@ -72,3 +72,7 @@ setup_colors
 setup_terraform
 which terraform
 declare -r tf_module="deployments/$(get_test_name "$(basename ${BASH_SOURCE[0]})")"
+# NOTE PS_VER is set by sourcing utility.sh. This lets me manage that project dependency in a single place
+source /dev/stdin <<<"$( curl -s https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/utility.sh )"
+credsFromSecretManager test_easyaws_credentials
+go test github.com/natemarks/easyaws/internal --tags=integration
