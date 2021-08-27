@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 # Version of pipeline scripts to use
 # https://github.com/natemarks/pipeline-scripts
-declare -r PS_VER=v0.0.11
+declare -r PS_VER=v0.0.13
 
 #######################################
 # Invoke the terraform install script from the github pipeline-scripts project

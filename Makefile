@@ -45,7 +45,7 @@ release:  ## Build release versions
 	-ldflags="-X github.com/natemarks/cache_clone/version.Version=${VERSION}" ${PKG}
 
 test:
-	@go test -short ${PKG_LIST}
+	@go test -short ${PKG_LIST} --tags=unit
 
 vet:
 	@go vet ${PKG_LIST}
