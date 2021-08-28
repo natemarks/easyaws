@@ -82,5 +82,5 @@ bash -c "curl https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_
 credsFromSecretManager test_easyaws_credentials
 aws sts get-caller-identity
 # run the tests
-sleep 60
+sleep 10
 go test github.com/natemarks/easyaws/internal --tags=integration
