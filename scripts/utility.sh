@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 # Version of pipeline scripts to use
 # https://github.com/natemarks/pipeline-scripts
-declare -r PS_VER=v0.0.15
+declare -r PS_VER=v0.0.16
 
 #######################################
 # Invoke the terraform install script from the github pipeline-scripts project
@@ -14,7 +14,7 @@ function setup_terraform() {
 }
 
 #######################################
-# Assuming the funciton is called from the integration test script, get the test name from the integration script
+# Assuming the function is called from the integration test script, get the test name from the integration script
 # name.  This is required to invoke terraform against the module based on the test name.
 # Example, the script test_iam_assume_role.sh should return gthe test name 'iam_assume_role', which allows the script
 # to invoke terraform in deployments/iam_assume_role
@@ -39,5 +39,14 @@ function run_tf_module() {
   terraform init && terraform plan
   terraform apply -auto-approve
 
+
+}
+
+function teardownTestFixtures() {
+  local script_name="$(basename ${1})"
+  local test_name="$(get_test_name ${script_name})"
+  local tf_module="deployments/${test_name}"
+  export PATH="$(pwd)/build/terraform/1.0.5:$PATH"
+  bash -c "curl https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/destroy_terraform.sh | bash -s --  -t ${tf_module}"
 
 }

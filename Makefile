@@ -76,6 +76,7 @@ setup_project_fixtures:
 run_tests:
 	for file in $(INTEGRATION_SCRIPTS); do \
 			bash $${file} ; \
+			bash -c ". scripts/utility.sh && teardownTestFixtures $${file}" ;\
 	done
 
 i_test: setup_project_fixtures run_tests ## run all of the integration tests

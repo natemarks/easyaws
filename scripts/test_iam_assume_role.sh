@@ -24,6 +24,7 @@ cleanup() {
   trap - SIGINT SIGTERM ERR EXIT
   setup_colors
   msg "${RED}CLEAN UP: Running terraform destroy${NOFORMAT}"
+
 }
 
 setup_colors() {
@@ -69,11 +70,15 @@ parse_params "$@"
 setup_colors
 # source import utility functions
 . scripts/utility.sh
+# install terraform and add it to the path
 setup_terraform
-which terraform
+# identify the terraform module for the resources this test requires
 declare -r tf_module="deployments/$(get_test_name "$(basename ${BASH_SOURCE[0]})")"
 # NOTE PS_VER is set by sourcing utility.sh. This lets me manage that project dependency in a single place
 source /dev/stdin <<<"$( curl -s https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/utility.sh )"
+# TF apply for test resources
 bash -c "curl https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/apply_terraform.sh | bash -s --  -t ${tf_module}"
+# export the creds for the project test account
 credsFromSecretManager test_easyaws_credentials
+# run the tests
 go test github.com/natemarks/easyaws/internal --tags=integration
