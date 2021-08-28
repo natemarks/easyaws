@@ -10,7 +10,7 @@ declare -r TF_VER=1.0.5
 # Invoke the terraform install script from the github pipeline-scripts project
 #######################################
 function setup_terraform() {
-  curl -s "https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/install_terraform.sh" | bash -s -- -d build/terraform -r "${TF_VER}"
+  curl -sS "https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/install_terraform.sh" | bash -s -- -d build/terraform -r "${TF_VER}"
   export PATH="$(pwd)/build/terraform/${TF_VER}:$PATH"
 }
 
@@ -37,7 +37,7 @@ function run_tf_module() {
   local module_dir="${1}"
   local initial_dir="$(pwd)"
   cd "${module_dir}"
-  terraform init && terraform plan
+  terraform init
   terraform apply -auto-approve
 
 
@@ -50,7 +50,7 @@ function run_tf_module() {
 function applyTerraform() {
   local tf_module="${1}"
   setup_terraform
-  bash -c "curl https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/apply_terraform.sh | bash -s --  -t ${tf_module}"
+  bash -c "curl -sS https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/apply_terraform.sh | bash -s --  -t ${tf_module}"
 
 }
 
@@ -61,7 +61,7 @@ function applyTerraform() {
 function destroyTerraform() {
   local tf_module="${1}"
   setup_terraform
-  bash -c "curl https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/destroy_terraform.sh | bash -s --  -t ${tf_module}"
+  bash -c "curl -sS https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/destroy_terraform.sh | bash -s --  -t ${tf_module}"
 }
 
 #######################################
@@ -78,6 +78,6 @@ function teardownTestFixtures() {
 
   local tf_module="deployments/${test_name}"
   export PATH="$(pwd)/build/terraform/${TF_VER}:$PATH"
-  bash -c "curl https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/destroy_terraform.sh | bash -s --  -t ${tf_module}"
+  bash -c "curl -sS https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/destroy_terraform.sh | bash -s --  -t ${tf_module}"
 
 }

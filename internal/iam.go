@@ -50,10 +50,14 @@ func GetAWSIdentityWithAssumeRole(assumeRole string, logger *zerolog.Logger) (st
 	// get the aws sdk client config
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
-		logger.Fatal().Err(err)
+		logger.Fatal().Err(err).Msg("Unable to load default config")
 		return "", err
 	}
 	creds, err := GetAssumeRoleCreds(assumeRole, logger)
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Unable to get assume role credentials")
+		return "", err
+	}
 	cfg.Credentials = aws.NewCredentialsCache(creds)
 
 	// Create service client value configured for credentials
@@ -64,7 +68,7 @@ func GetAWSIdentityWithAssumeRole(assumeRole string, logger *zerolog.Logger) (st
 
 	p, err := svc.GetCallerIdentity(context.TODO(), input)
 	if err != nil {
-		logger.Fatal().Err(err)
+		logger.Fatal().Err(err).Msg("Unable to get caller identity")
 	}
 	return *p.Arn, err
 }
