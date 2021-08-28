@@ -6,4 +6,4 @@ set -Eeuo pipefail
 . scripts/utility.sh
 
 setup_terraform
-applyTerraform deployments/test_user
+destroyTerraform deployments/test_user

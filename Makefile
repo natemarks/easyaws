@@ -80,6 +80,7 @@ run_tests:
 	done
 
 i_test: setup_project_fixtures run_tests ## run all of the integration tests
+	bash scripts/teardown_project_fixtures.sh
 
 bump: clean-venv  ## bump version in main branch
 ifeq ($(CURRENT_BRANCH), $(MAIN_BRANCH))
