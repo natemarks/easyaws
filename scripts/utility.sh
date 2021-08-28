@@ -4,13 +4,14 @@ set -Eeuo pipefail
 # Version of pipeline scripts to use
 # https://github.com/natemarks/pipeline-scripts
 declare -r PS_VER=v0.0.16
+declare -r TF_VER=1.0.5
 
 #######################################
 # Invoke the terraform install script from the github pipeline-scripts project
 #######################################
 function setup_terraform() {
-  curl -s "https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/install_terraform.sh" | bash -s -- -d build/terraform -r 1.0.5
-  export PATH="$(pwd)/build/terraform/1.0.5:$PATH"
+  curl -s "https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/install_terraform.sh" | bash -s -- -d build/terraform -r "${TF_VER}"
+  export PATH="$(pwd)/build/terraform/${TF_VER}:$PATH"
 }
 
 #######################################
@@ -46,7 +47,7 @@ function teardownTestFixtures() {
   local script_name="$(basename ${1})"
   local test_name="$(get_test_name ${script_name})"
   local tf_module="deployments/${test_name}"
-  export PATH="$(pwd)/build/terraform/1.0.5:$PATH"
+  export PATH="$(pwd)/build/terraform/${TF_VER}:$PATH"
   bash -c "curl https://raw.githubusercontent.com/natemarks/pipeline-scripts/${PS_VER}/scripts/destroy_terraform.sh | bash -s --  -t ${tf_module}"
 
 }
