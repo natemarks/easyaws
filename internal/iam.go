@@ -53,6 +53,7 @@ func GetAWSIdentityWithAssumeRole(assumeRole string, logger *zerolog.Logger) (st
 		logger.Fatal().Err(err).Msg("Unable to load default config")
 		return "", err
 	}
+	logger.Info().Msg("getting the assume role credentials")
 	creds, err := GetAssumeRoleCreds(assumeRole, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Unable to get assume role credentials")
@@ -62,10 +63,11 @@ func GetAWSIdentityWithAssumeRole(assumeRole string, logger *zerolog.Logger) (st
 
 	// Create service client value configured for credentials
 	// from assumed role.
+	logger.Info().Msg("creating a client wiht the assume role credentials")
 	svc := sts.NewFromConfig(cfg)
 
 	input := &sts.GetCallerIdentityInput{}
-
+	logger.Info().Msg("using the assume role credentials to run get caller identity")
 	p, err := svc.GetCallerIdentity(context.TODO(), input)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Unable to get caller identity")
