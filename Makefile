@@ -5,6 +5,7 @@
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 PKG := github.com/natemarks/easyaws
 VERSION := 0.0.0
+CURRENT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 DEFAULT_BRANCH := main
 COMMIT := $(shell git describe --always --long --dirty)
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
@@ -83,7 +84,7 @@ i_test: setup_project_fixtures run_tests ## run all of the integration tests
 	bash scripts/teardown_project_fixtures.sh
 
 bump: clean-venv  ## bump version in main branch
-ifeq ($(CURRENT_BRANCH), $(MAIN_BRANCH))
+ifeq ($(CURRENT_BRANCH), $(DEFAULT_BRANCH))
 	( \
 	   source .venv/bin/activate; \
 	   pip install bump2version; \
@@ -91,7 +92,7 @@ ifeq ($(CURRENT_BRANCH), $(MAIN_BRANCH))
 	)
 else
 	@echo "UNABLE TO BUMP - not on Main branch"
-	$(info Current Branch: $(CURRENT_BRANCH), main: $(MAIN_BRANCH))
+	$(info Current Branch: $(CURRENT_BRANCH), main: $(DEFAULT_BRANCH))
 endif
 
 
