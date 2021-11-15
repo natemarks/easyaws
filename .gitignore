@@ -25,3 +25,7 @@ build/
 **/.terraform.lock.hcl
 **/terraform.tfstate
 **/terraform.tfstate.backup
+
+# The environment variabe;ls required to drive the test
+# see .env.example
+.env
