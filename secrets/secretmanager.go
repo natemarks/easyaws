@@ -79,3 +79,48 @@ func GetRemoteCredentials(i GetRemoteCredentialsInput, log *zerolog.Logger) (Get
 	log.Debug().Msgf("JSONValue(sha256): %s", Sha256sum(result.JSONValue))
 	return result, err
 }
+
+
+
+type GetSecretJSONInput struct {
+	// The AWS SecretManager secret identifier. ex: /path/to/my/secret
+	AWSSMSecretID string
+}
+
+// GetSecretJSON returns the secret JSON document as a string
+func GetSecretJSON(i GetSecretJSONInput, log *zerolog.Logger) (string, error) {
+
+	// Setup the client
+	log.Info().Msg("setting up the AWS Secret Manager client")
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		log.Fatal().Err(err)
+	}
+
+	SecretClient := *secretsmanager.NewFromConfig(cfg)
+
+	SecretInput := &secretsmanager.GetSecretValueInput{
+		SecretId:     aws.String(i.AWSSMSecretID),
+		VersionId:    nil,
+		VersionStage: nil,
+	}
+	// Get the secret doc from AWS
+
+	log.Info().Msg("getting the secret doc from AWS SM")
+	secretDoc, err := SecretClient.GetSecretValue(context.TODO(), SecretInput)
+	if err != nil {
+		log.Fatal().Err(err)
+	}
+	return *secretDoc.SecretString, err
+}
+
+// LookupJSONKey Given a key and a JSONDoc  string that is amap, return the value
+func LookupJSONKey(key, JSONDoc string) (string, error) {
+	var objmap map[string]string
+	err := json.Unmarshal([]byte(JSONDoc), &objmap)
+	if err != nil {
+		return "", err
+	}
+	// Use the provided username and token key names to get the credential values
+	return objmap[key], err
+}

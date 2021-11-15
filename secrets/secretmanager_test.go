@@ -1,6 +1,7 @@
 package secrets
 
 import (
+	"encoding/json"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"os"
@@ -16,6 +17,15 @@ func IsValid(output GetRemoteCredentialsOutput) bool {
 		return false
 	}
 	if output.JSONValue == "" {
+		return false
+	}
+	return true
+}
+
+func IsValidJSON(input string) bool {
+	var objmap map[string]string
+	err := json.Unmarshal([]byte(input), &objmap)
+	if err != nil {
 		return false
 	}
 	return true
@@ -52,6 +62,70 @@ func TestGetRemoteCredentials(t *testing.T) {
 			}
 			if !IsValid(got) {
 				t.Errorf("GetRemoteCredentials() output doesn't look right")
+			}
+		})
+	}
+}
+
+func TestGetSecretJSON(t *testing.T) {
+	logger := log.With().Str("test_key", "test_value").Logger()
+	type args struct {
+		i   GetSecretJSONInput
+		log *zerolog.Logger
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{name: "valid", args: args{
+			i: GetSecretJSONInput{
+				AWSSMSecretID: os.Getenv("AWSSMSECRETID"),
+			},
+			log: &logger,
+		},
+			wantErr: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetSecretJSON(tt.args.i, tt.args.log)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetSecretJSON() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !IsValidJSON(got) {
+				t.Errorf("GetSecretJSON() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestLookupJSONKey(t *testing.T) {
+	type args struct {
+		key     string
+		JSONDoc string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{name: "valid", args: args{
+			key:     "ggg",
+			JSONDoc: "{\"ggg\": \"ooo\"}",
+		},wantErr: false,want: "ooo"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := LookupJSONKey(tt.args.key, tt.args.JSONDoc)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("LookupJSONKey() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("LookupJSONKey() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
