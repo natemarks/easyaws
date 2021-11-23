@@ -4,7 +4,7 @@
 # Be sure to place this BEFORE `include` directives, if any.
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 PKG := github.com/natemarks/easyaws
-VERSION := 0.0.2
+VERSION := 0.1.0
 CURRENT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 DEFAULT_BRANCH := main
 COMMIT := $(shell git describe --always --long --dirty)
