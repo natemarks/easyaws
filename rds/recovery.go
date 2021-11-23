@@ -72,14 +72,14 @@ func GetLatestSnapshotId(instance string, log *zerolog.Logger) (string, error) {
 	input := &rds.DescribeDBSnapshotsInput{
 		DBInstanceIdentifier: aws.String(instance),
 	}
-	// Get the secret doc from AWS
 
-	log.Info().Msg("getting the secret doc from AWS SM")
 	ssOutput, err := RDSCLient.DescribeDBSnapshots(context.TODO(), input)
 	if err != nil {
 		log.Fatal().Err(err)
 	}
 	latest := filterLatestSnapshot(ssOutput.DBSnapshots)
+	log.Info().Msgf("latest snapshot for instance (%s): %s", instance, *latest.DBSnapshotIdentifier)
+
 	return *latest.DBSnapshotIdentifier, err
 
 }
@@ -88,7 +88,7 @@ func GetLatestSnapshotId(instance string, log *zerolog.Logger) (string, error) {
 func GetSubnetGroup(instance string, log *zerolog.Logger) (string, error) {
 
 	// Setup the client
-	log.Info().Msgf("looking up latest snaphot for RDS instance: %s", instance)
+	log.Info().Msgf("looking up subnet group id for RDS instance: %s", instance)
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		log.Fatal().Err(err)
@@ -99,14 +99,14 @@ func GetSubnetGroup(instance string, log *zerolog.Logger) (string, error) {
 	input := &rds.DescribeDBInstancesInput{
 		DBInstanceIdentifier: aws.String(instance),
 	}
-	// Get the secret doc from AWS
 
-	log.Info().Msg("getting the secret doc from AWS SM")
 	ssOutput, err := RDSCLient.DescribeDBInstances(context.TODO(), input)
 	if err != nil {
 		log.Fatal().Err(err)
 	}
 
+	log.Info().Msgf("subnet group name for instance (%s): %s",
+		instance, *ssOutput.DBInstances[0].DBSubnetGroup.DBSubnetGroupName)
 	return *ssOutput.DBInstances[0].DBSubnetGroup.DBSubnetGroupName, err
 
 }
@@ -115,7 +115,7 @@ func GetSubnetGroup(instance string, log *zerolog.Logger) (string, error) {
 func GetVPCSecurityGroups(instance string, log *zerolog.Logger) ([]string, error) {
 	var res []string
 	// Setup the client
-	log.Info().Msgf("looking up latest snaphot for RDS instance: %s", instance)
+	log.Info().Msgf("looking up VPC security groups for RDS instance: %s", instance)
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		log.Fatal().Err(err)
@@ -126,9 +126,7 @@ func GetVPCSecurityGroups(instance string, log *zerolog.Logger) ([]string, error
 	input := &rds.DescribeDBInstancesInput{
 		DBInstanceIdentifier: aws.String(instance),
 	}
-	// Get the secret doc from AWS
 
-	log.Info().Msg("getting the secret doc from AWS SM")
 	ssOutput, err := RDSCLient.DescribeDBInstances(context.TODO(), input)
 	if err != nil {
 		log.Fatal().Err(err)
@@ -136,6 +134,8 @@ func GetVPCSecurityGroups(instance string, log *zerolog.Logger) ([]string, error
 	for _, v := range ssOutput.DBInstances[0].VpcSecurityGroups{
 		res = append(res, *v.VpcSecurityGroupId)
 	}
+
+	log.Info().Msgf("found %d VPC Security groups for instance (%s)", len(res), instance)
 	return res, err
 
 }
