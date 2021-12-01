@@ -80,6 +80,7 @@ func GetLatestSnapshotId(instance string, log *zerolog.Logger) (string, error) {
 		DBInstanceIdentifier: aws.String(instance),
 	}
 
+	log.Info().Msgf("getting list of snapshots for instance: %s", input.DBSnapshotIdentifier)
 	ssOutput, err := RDSCLient.DescribeDBSnapshots(context.TODO(), input)
 	if err != nil {
 		log.Fatal().Err(err)
