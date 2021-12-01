@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/rds/types"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/rs/zerolog"
+	"time"
 )
 
 type Tag struct {
@@ -45,8 +46,14 @@ func tagsToAWSTags( mytags []Tag) ([]types.Tag) {
 // filterLatestSnapshot Given a slice of DBSnapshots, return the onne wiht the latest InstanceCreateTime
 func filterLatestSnapshot(ss []types.DBSnapshot) types.DBSnapshot {
 	var latest types.DBSnapshot
-	for i, v := range ss {
-		if i == 0 {
+	for _, v := range ss {
+		if v.OriginalSnapshotCreateTime == nil {
+			continue
+		}
+		if time.Time.IsZero(*v.OriginalSnapshotCreateTime) {
+			continue
+		}
+		if latest.DBSnapshotIdentifier == nil {
 			latest = v
 			continue
 		}
